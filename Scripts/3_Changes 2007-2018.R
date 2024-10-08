@@ -1,5 +1,5 @@
 #Script to calculate the areas differences between Protected areas and SPAs in 2022 and 2004. 
-#Also to calculate the changes in species richness and conservation status (LR, SPEC and EU) between both years.
+#Also to calculate the changes in species richness and conservation status (LR, SPEC and EU) between both periods.
 
 # load libraries
 library(sf)
@@ -17,7 +17,8 @@ library(gridExtra)
 
 # clean environment
 rm(list = ls())
-setwd("~/GitHub/SteppeBirdHotspots")
+
+setwd("~/GitHub/SteppeBirdHotspotsandPAs")
 
 combindex_HP_CP <- st_read("Spatial_Data/combindexHP_CP_26June.shp")
 Protectedareas2004 <- st_read("Spatial_Data/espacios protegidos.shp")
@@ -793,8 +794,6 @@ PASPAs2022 <- ggplot() +
         axis.title = element_text(size = 12, face = "plain"), legend.key.size = unit(0.5, "cm")) +
   guides(colour = "none", size = "none", alpha = "none") +
   labs(title = "Current period: hotspots and Protected areas (PAs and SPAs)")
-
-bothPASPAs <- grid.arrange(PASPAs2004, PASPAs2022, ncol = 1)
 
 ggsave("Figures/PASPAs2004_2Oct2024.png", PASPAs2004, wi = 20, he = 25, un = "cm", dpi = 600)
 ggsave("Figures/PASPAs2022_2Oct2024.png", PASPAs2022, wi = 20, he = 25, un = "cm", dpi = 600)

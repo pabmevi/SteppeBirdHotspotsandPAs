@@ -16,6 +16,10 @@
   
   # clean environment
   rm(list = ls())
+  
+  
+  setwd("~/GitHub/SteppeBirdHotspotsandPAs")
+  
   # load Spanish UTM grid
   malla <- st_read("Spatial_Data/Malla_UTM.shp")
   malla <- st_transform(malla, crs = "EPSG:25830") 

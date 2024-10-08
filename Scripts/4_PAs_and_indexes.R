@@ -15,6 +15,8 @@ library(lmerTest)
 # clean environment
 rm(list = ls())
 
+setwd("~/GitHub/SteppeBirdHotspotsandPAs")
+
 #Load the combined file that includes all indexes for 5070 cells in 2006 and 2018
 db3 <- st_read("Spatial_Data/HPCP_PASPA_27June.shp")
 

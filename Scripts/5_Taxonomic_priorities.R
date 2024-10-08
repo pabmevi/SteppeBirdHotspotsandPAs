@@ -8,6 +8,7 @@ library(data.table)
 library(writexl)
 
 rm(list = ls())
+setwd("~/GitHub/SteppeBirdHotspotsandPAs")
 
 ####CALCULATING DATA FOR SPECIES IN HISTORICAL PERIOD (HP)########################################
 ########################################################################################################
