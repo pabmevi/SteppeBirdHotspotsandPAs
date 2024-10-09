@@ -18,7 +18,7 @@ rm(list = ls())
 setwd("~/GitHub/SteppeBirdHotspotsandPAs")
 
 # load Spanish UTM grid
-malla <- st_read("Spatial_Data/Malla_UTM.shp")
+malla <- st_read("Spatial_Data/Malla_municipios/Malla_UTM.shp")
 malla <- st_transform(malla, crs = "EPSG:25830") 
 
 # loading the merged data from atlas (2014-2018) and ebird (2019-2023) considering only cells with data for HP and CP.
@@ -173,7 +173,7 @@ comm <- comm[!comm$iso2.ccaa.name.es %in% c("Canarias"),]
 
 #########Now loading SPAs (ZEPAS-Zonas de Especial Protección para las Aves) shp to intersect with hotspots##########
 
-SPAs2022 <- st_read("Spatial_Data/Es_Lic_SCI_Zepa_SPA_Medalpatl_202212.shp")
+SPAs2022 <- st_read("Spatial_Data/lic_zepa2022_pbyc_tcm30-552029/Es_Lic_SCI_Zepa_SPA_Medalpatl_202212.shp")
 
 #Obtaining the crs from hotspots_CP and assigning it to SPAs2022
 SPAs2022 <- st_transform(SPAs2022, crs = st_crs(hotspots_CP))
