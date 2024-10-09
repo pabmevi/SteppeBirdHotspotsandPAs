@@ -23,7 +23,7 @@ setwd("~/GitHub/SteppeBirdHotspotsandPAs")
 combindex_HP_CP <- st_read("Spatial_Data/combindexHP_CP_26June.shp")
 Protectedareas2004 <- st_read("Spatial_Data/espacios protegidos.shp")
 Protectedareas2022 <- st_read("Spatial_Data/Protected areas_enp_2022/Enp2022_p.shp")
-malla <- st_read("Spatial_Data/Malla_UTM.shp")
+malla <- st_read("Spatial_Data/Malla_municipios/Malla_UTM.shp")
 malla <- st_transform(malla, crs = "EPSG:25830") 
 
 #Obtaining the crs from combindex_HP_CP and assigning it to Protectedareas2004
@@ -92,7 +92,7 @@ combindex_HP_CPx$geometry <- NULL
 datos <- merge(combindex_HP_CPx, interseccion_2004[,c(1,24)], by = "UTMCODE", all.x = TRUE)
 datos <- merge(datos, interseccion_2022[,c(1,25)], by = "UTMCODE", all.x = TRUE)
 
-# New Protected areas may have arisen in 2022, so I assignated a 0 to all NA, so I can calculate the differences between 2004 and 2022.
+# New Protected areas may have arisen in 2022, so I assigned a 0 to all NA, so I can calculate the differences between 2004 and 2022.
 datos0  <- datos
 datos0$areaPA_2022[is.na(datos0$areaPA_2022)] <- 0
 datos0$areaPA_2004[is.na(datos0$areaPA_2004)] <- 0
@@ -143,7 +143,7 @@ Indexes_HP_CP$geometry  <- NULL
 dataZ <- merge(Indexes_HP_CP, interseccion_Z2004[,c(1,27)], by = "UTMCODE", all.x = TRUE)
 dataZ <- merge(dataZ, interseccion_Z2022[,c(1,28)], by = "UTMCODE", all.x = TRUE)
 
-# New SPAs may have arisen in 2022, so I assignated a 0 to all NA, so I can calculate the differences between 2004 and 2022.
+# New SPAs may have arisen in 2022, so I assigned a 0 to all NA, so I can calculate the differences between 2004 and 2022.
 dataZ0  <- dataZ
 dataZ0$area_Z2004[is.na(dataZ0$area_Z2004)] <- 0
 dataZ0$area_Z2022[is.na(dataZ0$area_Z2022)] <- 0
