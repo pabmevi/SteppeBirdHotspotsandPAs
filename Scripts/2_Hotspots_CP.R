@@ -323,3 +323,4 @@ map_change
 ggsave("Figures/hotspotschange26june.png", map_change, wi = 20, he = 20, un = "cm", dpi = 300)
 write_sf(combindexHP_CP_1, "Spatial_Data/combindexHP_CP_26June.shp")#This shp contains the combined index only for cells with data for both periods. 
 #i.e, if one of the two periods had no data, that row was removed. This was done to only compare surveyed cells for both periods.
+

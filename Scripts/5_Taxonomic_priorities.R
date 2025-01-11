@@ -155,6 +155,12 @@ TaxPrior$EPS.2023  <- NULL
 TaxPrior$SPEC.2023  <- NULL
 TaxPrior$N_hotspot_cells_CP  <- NULL
 
+#Calculating correlations among indices
+corrmatrix0 <- TaxPrior[, c(6:11)]
+corrmatrix0 <- corrmatrix0[, c(6, 1, 3, 4, 5, 2)]
+corrmatrix0  <- as.data.frame(cor(corrmatrix0))
+write_xlsx(corrmatrix0, 'Data/CIs_indices_correlation.xlsx') 
+
 #min max linear rescaling
 basic_function <- function(x) {
   (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
