@@ -1,6 +1,5 @@
 #Script to calculate the areas differences between Protected areas and SPAs in 2022 and 2004. 
-#Also to calculate the changes in species richness and conservation status (LR, SPEC and EU) between both periods. This is for sensitivity
-#This script is run without using ebird data. 
+#Also to calculate the changes in species richness and conservation status (LR, SPEC and EU) between both years.
 
 # load libraries
 library(sf)
@@ -18,10 +17,9 @@ library(gridExtra)
 
 # clean environment
 rm(list = ls())
+setwd("~/GitHub/SteppeBirdHotspots")
 
-setwd("C:/Users/USUARIO/Documents/GitHub/SteppeBirdHotspotsandPAs")
-
-combindex_HP_CP <- st_read("Spatial_Data/combindexHP_CP_26June_sensitivity.shp")
+combindex_HP_CP <- st_read("Spatial_Data/combindexHP_CP_26June.shp")
 Protectedareas2004 <- st_read("Spatial_Data/espacios protegidos.shp")
 Protectedareas2022 <- st_read("Spatial_Data/Protected areas_enp_2022/Enp2022_p.shp")
 malla <- st_read("Spatial_Data/Malla_municipios/Malla_UTM.shp")
@@ -67,7 +65,7 @@ names (combindex_HP_CP)[22] = "ch_cmbindx"
 cat_selected0 <- c("PARQUE NACIONAL", "PARQUE NATURAL", "PARQUE REGIONAL")
 
 cat_selected <- c("Parque Nacional", "Parque Natural", "Parque Regional")#, "Reserva Integral", "Área Marina Protegida", 
-                  #"Reserva Natural de Fauna Salvaje", "Reserva Natural", "Reserva Natural Integral", "Reserva Natural Parcial")
+#"Reserva Natural de Fauna Salvaje", "Reserva Natural", "Reserva Natural Integral", "Reserva Natural Parcial")
 
 Protectedareas2004 <- Protectedareas2004[Protectedareas2004$FIGURAPROT %in% cat_selected0, ]
 Protectedareas2022 <- Protectedareas2022[Protectedareas2022$ODESIGNATE %in% cat_selected, ]
@@ -93,7 +91,7 @@ combindex_HP_CPx$geometry <- NULL
 datos <- merge(combindex_HP_CPx, interseccion_2004[,c(1,24)], by = "UTMCODE", all.x = TRUE)
 datos <- merge(datos, interseccion_2022[,c(1,25)], by = "UTMCODE", all.x = TRUE)
 
-# New Protected areas may have arisen in 2022, so I assigned a 0 to all NA, so I can calculate the differences between 2004 and 2022.
+# New Protected areas may have arisen in 2022, so I assignated a 0 to all NA, so I can calculate the differences between 2004 and 2022.
 datos0  <- datos
 datos0$areaPA_2022[is.na(datos0$areaPA_2022)] <- 0
 datos0$areaPA_2004[is.na(datos0$areaPA_2004)] <- 0
@@ -104,7 +102,7 @@ datos0$differencePAs <- datos0$areaPA_2022 - datos0$areaPA_2004
 names(datos0)
 Indexes_HP_CP00 <- datos0[, c(1:25,27)]
 Indexes_HP_CP0 <- left_join(malla[, c("UTMCODE")], Indexes_HP_CP00,
-                              by = "UTMCODE")
+                            by = "UTMCODE")
 
 Indexes_HP_CP <- subset(Indexes_HP_CP0, !is.na(cmbindx_HP))
 
@@ -144,7 +142,7 @@ Indexes_HP_CP$geometry  <- NULL
 dataZ <- merge(Indexes_HP_CP, interseccion_Z2004[,c(1,27)], by = "UTMCODE", all.x = TRUE)
 dataZ <- merge(dataZ, interseccion_Z2022[,c(1,28)], by = "UTMCODE", all.x = TRUE)
 
-# New SPAs may have arisen in 2022, so I assigned a 0 to all NA, so I can calculate the differences between 2004 and 2022.
+# New SPAs may have arisen in 2022, so I assignated a 0 to all NA, so I can calculate the differences between 2004 and 2022.
 dataZ0  <- dataZ
 dataZ0$area_Z2004[is.na(dataZ0$area_Z2004)] <- 0
 dataZ0$area_Z2022[is.na(dataZ0$area_Z2022)] <- 0
@@ -182,7 +180,7 @@ names (Indexes_HP_CP_PA_SPAs)[28] = "difSPAs"
 Indexes_HP_CP_PA_SPAs <- drop_units(Indexes_HP_CP_PA_SPAs)
 
 Indexes_HP_CP_PA_SPAs1 <- left_join(malla[, c("UTMCODE")], Indexes_HP_CP_PA_SPAs,
-                 by = "UTMCODE")
+                                    by = "UTMCODE")
 
 Indexes_HP_CP_PA_SPAs1 <- subset(Indexes_HP_CP_PA_SPAs1, !is.na(cmbindx_HP))
 
@@ -257,8 +255,8 @@ sum(is.na(Indexes_HP_CP_complete))
 #Now we calculate loss, maintaining, gain, or no PAs/SPAs considering areas. So any increase 
 #or decrease in area comparing HP and CP is considered
 Indexes_HP_CP_complete$PASPAS_gainarea <- ifelse(Indexes_HP_CP_complete$area_PAsSPAs2004 == 0 & Indexes_HP_CP_complete$area_PAsSPAs2022 == 0, "none",
-                    ifelse(Indexes_HP_CP_complete$area_PAsSPAs2022 > Indexes_HP_CP_complete$area_PAsSPAs2004, "gain",
-                           ifelse(Indexes_HP_CP_complete$area_PAsSPAs2022 < Indexes_HP_CP_complete$area_PAsSPAs2004, "loss", "maintenance")))
+                                                 ifelse(Indexes_HP_CP_complete$area_PAsSPAs2022 > Indexes_HP_CP_complete$area_PAsSPAs2004, "gain",
+                                                        ifelse(Indexes_HP_CP_complete$area_PAsSPAs2022 < Indexes_HP_CP_complete$area_PAsSPAs2004, "loss", "maintenance")))
 
 # map difference PAsSPAs 2004 vs 2022
 mapDifPAs_SPAs <- ggplot() +
@@ -281,7 +279,7 @@ Indexes_HP_CP_complete$SPAs_2022 <- NULL
 names(Indexes_HP_CP_complete)[34] <- "PASPAS_cell"
 names(Indexes_HP_CP_complete)[35] <- "PASPAS_area"
 
-write_sf(Indexes_HP_CP_complete, "Spatial_Data/HPCP_PASPA_27June_sensitivity.shp") #This shp has 4823 cells because those cells without richness data were removed.
+write_sf(Indexes_HP_CP_complete, "Spatial_Data/HPCP_PASPA_27June.shp") #This shp has 4823 cells because those cells without richness data were removed.
 
 ################################################################################
 #Stats per AC
@@ -295,8 +293,8 @@ comm <- st_transform(comm, st_crs(Indexes_HP_CP_complete))
 ############## Overlap with autonomous communities to calculate number of spp per AC in HP and CP
 
 #Loading the files with spp names and UTMs generated in Script 1 for HP and CP
-FilteredHP <- read.csv("Data/FilteredHP_sensitivity.csv", stringsAsFactors = F)
-FilteredCP <- read.csv("Data/FilteredCP_sensitivity.csv", stringsAsFactors = F)
+FilteredHP <- read.csv("Data/FilteredHP.csv", stringsAsFactors = F)
+FilteredCP <- read.csv("Data/FilteredCP.csv", stringsAsFactors = F)
 
 FilteredHP_shp <- left_join(malla[, c("UTMCODE")], FilteredHP,
                             by = "UTMCODE")
@@ -344,6 +342,11 @@ ACstatsHPCP <- merge(ACstatsHP2, ACstatsCP2, by="ccaa.shortname.en")
 # Spatial intersection between ACs and Indexes_HP_CP_complete to have statistics per AC
 
 Indexes_HP_CP_complete1 <- subset(Indexes_HP_CP_complete, !is.na(rich_HP))
+Indexes_HP_CP_complete1$rich_ch <- round((Indexes_HP_CP_complete1$rich_CP - Indexes_HP_CP_complete1$rich_HP)*100/ Indexes_HP_CP_complete1$rich_HP, 2)
+Indexes_HP_CP_complete1$rarity_ch <- round((Indexes_HP_CP_complete1$rarity_CP_sc - Indexes_HP_CP_complete1$rarity_HP_sc)*100/ Indexes_HP_CP_complete1$rarity_HP_sc, 2)
+Indexes_HP_CP_complete1$RLS_ch <- round((Indexes_HP_CP_complete1$RLS_2021_sc - Indexes_HP_CP_complete1$RLS_2004_sc)*100/ Indexes_HP_CP_complete1$RLS_2004_sc, 2)
+Indexes_HP_CP_complete1$EPS_ch <- round((Indexes_HP_CP_complete1$EPS_2022_sc - Indexes_HP_CP_complete1$EPS_2004_sc)*100/ Indexes_HP_CP_complete1$EPS_2004_sc, 2)
+Indexes_HP_CP_complete1$SPEC_ch <- round((Indexes_HP_CP_complete1$SPEC_2022_sc - Indexes_HP_CP_complete1$SPEC_2004_sc)*100/ Indexes_HP_CP_complete1$SPEC_2004_sc, 2)
 
 celdas_por_comunidad <- st_intersection(Indexes_HP_CP_complete1, comm)
 # Stats per AC
@@ -354,12 +357,14 @@ resultados <- celdas_por_comunidad %>%
     sd_richHP = sd(rich_HP),
     mean_rich_CP = mean(rich_CP),
     sd_rich_CP = sd(rich_CP),
-    rich_ch = round((mean_rich_CP - mean_richHP) * 100 / mean_richHP, 2),
+    rich_ch1 = round((mean_rich_CP - mean_richHP) * 100 / mean_richHP, 2),
+    mean_rich_ch = mean(rich_ch),
+    sd_rich_ch = sd(rich_ch),
     mean_rarity_HP = mean(rarity_HP_sc),
     sd_rarity_HP = sd(rarity_HP_sc),
     mean_rarity_CP = mean(rarity_CP_sc),
     sd_rarity_CP = sd(rarity_CP_sc),
-    rarity_ch = round((mean_rarity_CP - mean_rarity_HP) * 100 / mean_rarity_HP, 2),
+    rarity_ch1 = round((mean_rarity_CP - mean_rarity_HP) * 100 / mean_rarity_HP, 2),
     mean_RLS_2004 = mean(RLS_2004_sc),
     sd_RLS_2004 = sd(RLS_2004_sc),
     mean_RLS_2021 = mean(RLS_2021_sc),
@@ -442,9 +447,9 @@ resultados_Comun2$n_cells<-NULL
 
 ACs_stats_30June <- merge(ACstatsHPCP, resultados_Comun2, by="ccaa.shortname.en")
 
-write_xlsx(ACs_stats_30June, 'Data/ACs_stats_1july_sensitivity.xlsx') 
-write_sf(hotspfinal_HP, "Spatial_Data/hotspfinal_HP_sensitivity.shp")
-write_sf(hotspfinal_CP, "Spatial_Data/hotspfinal_CP_sensitivity.shp")
+write_xlsx(ACs_stats_30June, 'Data/ACs_stats_1july.xlsx') 
+write_sf(hotspfinal_HP, "Spatial_Data/hotspfinal_HP.shp")
+write_sf(hotspfinal_CP, "Spatial_Data/hotspfinal_CP.shp")
 
 
 hotspfinal_HP
@@ -464,31 +469,42 @@ add_error_bars <- function(plot, data1, data2) {
   arrows(1, ci1[1], 1, ci1[2], length=0.05, angle=90, code=3, col="darkgrey")
   arrows(2, ci2[1], 2, ci2[2], length=0.05, angle=90, code=3, col="darkgrey")
 }
- 
+
+# Crear los gráficos escalados
+
 plot1 <- boxplot(Indexes_HP_CP_complete1$rich_HP, Indexes_HP_CP_complete1$rich_CP, 
                  names = c("Historical", "Current"), 
-                 main = "Species richness", ylab = "Average richness",
+                 main = "c) Mean richness for HP and CP", ylab = "Average richness",
                  col = c("white", "gray93"))
 
-# Calcular las medias escaladas
+# Calculating means
 mean07 <- mean(Indexes_HP_CP_complete1$rich_HP, na.rm = TRUE)
 mean23 <- mean(Indexes_HP_CP_complete1$rich_CP, na.rm = TRUE)
 
+#T test to check if differences are significant
+t_test_rich <- t.test(Indexes_HP_CP_complete1$rich_CP, Indexes_HP_CP_complete1$rich_HP, paired = TRUE)
+
+# Adding mean to the graph
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 
+# Adding error bars 
 add_error_bars(plot1, Indexes_HP_CP_complete1$rich_HP, Indexes_HP_CP_complete1$rich_CP)
 
+# Adding points to the mean
 points(1, mean07, col = "red", pch = 18)
 points(2, mean23, col = "red", pch = 18)
 
 # Rarity
 plot2 <- boxplot(Indexes_HP_CP_complete1$rarity_HP_sc, Indexes_HP_CP_complete1$rarity_CP_sc, 
                  names = c("Historical", "Current"), 
-                 main = "Rarity", ylab = "Average rarity (scaled 0-1)",
+                 main = "f) Mean rarity for HP and CP", ylab = "Average rarity (scaled 0-1)",
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$rarity_HP_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$rarity_CP_sc)
+#T test to check if differences are significant
+t_test_rarity <- t.test(Indexes_HP_CP_complete1$rarity_CP_sc, Indexes_HP_CP_complete1$rarity_HP_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot2, Indexes_HP_CP_complete1$rarity_HP_sc, Indexes_HP_CP_complete1$rarity_CP_sc)
@@ -498,10 +514,13 @@ points(2, mean23, col = "red", pch = 18)
 # Spanish threat status
 plot3 <- boxplot(Indexes_HP_CP_complete1$RLS_2004_sc, Indexes_HP_CP_complete1$RLS_2021_sc, 
                  names = c("Historical", "Current"), 
-                 main = "Spanish threat status", ylab = "Average score (scaled 0-1)",
+                 main = "i) Mean RLS for HP and CP", ylab = "Average score (scaled 0-1)",
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$RLS_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$RLS_2021_sc)
+#T test to check if differences are significant
+t_test_RLS <- t.test(Indexes_HP_CP_complete1$RLS_2021_sc, Indexes_HP_CP_complete1$RLS_2004_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot3, Indexes_HP_CP_complete1$RLS_2004_sc, Indexes_HP_CP_complete1$RLS_2021_sc)
@@ -511,10 +530,13 @@ points(2, mean23, col = "red", pch = 18)
 # European population status
 plot4 <- boxplot(Indexes_HP_CP_complete1$EPS_2004_sc, Indexes_HP_CP_complete1$EPS_2022_sc, 
                  names = c("Historical", "Current"), 
-                 main = "European population status", ylab = "Average score (scaled 0-1)",
+                 main = "l) Mean EPS for HP and CP", ylab = "Average score (scaled 0-1)",
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$EPS_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$EPS_2022_sc)
+#T test to check if differences are significant
+t_test_EPS <- t.test(Indexes_HP_CP_complete1$EPS_2022_sc, Indexes_HP_CP_complete1$EPS_2004_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot4, Indexes_HP_CP_complete1$EPS_2004_sc, Indexes_HP_CP_complete1$EPS_2022_sc)
@@ -524,23 +546,38 @@ points(2, mean23, col = "red", pch = 18)
 # SPEC status
 plot5 <- boxplot(Indexes_HP_CP_complete1$SPEC_2004_sc, Indexes_HP_CP_complete1$SPEC_2022_sc, 
                  names = c("Historical", "Current"), 
-                 main = "SPEC status", ylab = "Average score (scaled 0-1)",
+                 main = "o) Mean SPEC for HP and CP", ylab = "Average score (scaled 0-1)",
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$SPEC_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$SPEC_2022_sc)
+#T test to check if differences are significant
+t_test_SPEC <- t.test(Indexes_HP_CP_complete1$SPEC_2022_sc, Indexes_HP_CP_complete1$SPEC_2004_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot5, Indexes_HP_CP_complete1$SPEC_2004_sc, Indexes_HP_CP_complete1$SPEC_2022_sc)
 points(1, mean07, col = "red", pch = 18)
 points(2, mean23, col = "red", pch = 18)
 
-# Combined index
+# Combined index: First scaling 0-1, the other indexes are already scaled
+
+basic_function <- function(x) {
+  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+Indexes_HP_CP_complete1$cmbindx_HP <- basic_function(Indexes_HP_CP_complete1$cmbindx_HP)
+Indexes_HP_CP_complete1$cmbindx_CP <- basic_function(Indexes_HP_CP_complete1$cmbindx_CP)
+
 plot6 <- boxplot(Indexes_HP_CP_complete1$cmbindx_HP, Indexes_HP_CP_complete1$cmbindx_CP, 
                  names = c("Historical", "Current"), 
-                 main = "Combined index", ylab = "Average score",
-                 col = c("white", "gray93"))
+                 main = "r) Mean CIa for HP and CP", ylab = "Average score (scaled 0-1)",
+                 col = c("white", "gray93"),
+                 cex.main = 0.8) # Cambiar el tamaño del título
 mean07 <- mean(Indexes_HP_CP_complete1$cmbindx_HP)
 mean23 <- mean(Indexes_HP_CP_complete1$cmbindx_CP)
+#T test to check if differences are significant
+t_test_CIa <- t.test(Indexes_HP_CP_complete1$cmbindx_CP, Indexes_HP_CP_complete1$cmbindx_HP, paired = TRUE)
+
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot6, Indexes_HP_CP_complete1$cmbindx_HP, Indexes_HP_CP_complete1$cmbindx_CP)
@@ -560,7 +597,7 @@ plot3
 plot6
 
 # Saving the image
-dev.copy(pdf, "Figures/combined_plots_indexes_1July_scaled_sensitivity.pdf")
+dev.copy(pdf, "Figures/combined_plots_indexes_1December_scaled.pdf")
 dev.off()
 
 mean(Indexes_HP_CP_complete1$rich_HP_sc, na.rm = TRUE)
@@ -585,32 +622,44 @@ sd(Indexes_HP_CP_complete1$cmbindx_CP, na.rm = TRUE)
 combind1 <- Indexes_HP_CP_complete1[, c("rich_HP", "rich_CP","rarity_HP_sc", "rarity_CP_sc", "RLS_2004_sc", "RLS_2021_sc")]
 combind2 <- Indexes_HP_CP_complete1[, c("EPS_2004_sc", "EPS_2022_sc", "SPEC_2004_sc","SPEC_2022_sc", "cmbindx_HP", "cmbindx_CP")]
 
-# Variables en terciles
-for (i in 1:6) {
-  combind1[[paste0("tercios_", colnames(combind1)[i])]] <- cut(combind1[[i]], 
-                                                               quantile(combind1[[i]], probs = c(0, 0.33, 0.67, 1), na.rm = TRUE), 
-                                                               labels = c("Low", "Medium", "High"), include.lowest = TRUE)
-}
+# Extract tercile thresholds for each variable
+tercile_thresholds <- lapply(1:6, function(i) {
+  quantile(combind1[[i]], probs = c(0, 0.33, 0.67, 1), na.rm = TRUE)
+})
 
 # Maps titles
 maptitles <- c("a) Richness 1998-2002 (Historical)", "b) Richness 2014-2022 (Current)", "d) Rarity 1998-2002 (Historical)", "e) Rarity 2014-2022 (Current)", "g) Spanish Threat Status 2004 (Historical)", "h) Spanish Threat Status 2021 (Current)")
 
-# Maps with new categories
+# Convert thresholds into legend labels
+tercile_labels <- lapply(tercile_thresholds, function(q) {
+  c(
+    paste0("Low: [", round(q[1], 2), ", ", round(q[2], 2), "]"),
+    paste0("Medium: (", round(q[2], 2), ", ", round(q[3], 2), "]"),
+    paste0("High: (", round(q[3], 2), ", ", round(q[4], 2), "]")
+  )
+})
+
+# Create maps with legends inside the map area, without a rectangle around the legend
 mapas <- list()
 for (i in 1:6) {
   mapas[[i]] <- ggplot() +
     geom_sf(data = combind1, aes_string(fill = paste0("tercios_", colnames(combind1)[i])), color = "transparent") +
     geom_sf(data = comm, fill = "transparent", color = "black") + 
-    scale_fill_manual(values = c("Low" = "thistle1", "Medium" = "plum2", "High" = "mediumorchid4"), na.value = "grey95") +
-    labs(x = "", y = "", fill = colnames(combind1)[i]) +
-    labs(title = maptitles[i]) +
+    scale_fill_manual(
+      values = c("Low" = "thistle1", "Medium" = "plum2", "High" = "mediumorchid4"), 
+      labels = tercile_labels[[i]],
+      na.value = "grey95"
+    ) +
+    labs(x = "", y = "", fill = "", title = maptitles[i]) +
+    annotation_scale(location = "bl", width_hint = .3) +
     theme_bw() +
     theme(
       title = element_text(size = 12, face = "bold"),
-      legend.title = element_text(size = 12, face = "bold"),
-      legend.position = "none",
-      axis.title = element_text(size = 15, face = "plain"),
-      legend.key.size = unit(0.5, "cm")
+      legend.title = element_blank(),
+      legend.position = c(0.8, 0.2), # Adjust position as needed
+      legend.background = element_blank(), # Remove the rectangle around the legend
+      legend.key.size = unit(0.4, "cm"),
+      legend.text = element_text(size = 8)
     ) +
     guides(colour = "none", size = "none", alpha = "none")
 }
@@ -619,33 +668,48 @@ for (i in 1:6) {
 mapa_completo <- cowplot::plot_grid(plotlist = mapas, ncol = 2, align = "v", rel_heights = rep(1, length(mapas)))
 mapa_completo
 
-ggsave("Figures/indexes1_6_27Junesc_sensitivity.png", mapa_completo, wi = 34, he = 45, un = "cm", dpi = 300)
+ggsave("Figures/indexes1_6_February25.png", mapa_completo, wi = 34, he = 45, un = "cm", dpi = 300)
 
 # The other 6 variables
-for (i in 1:6) {
-  combind2[[paste0("tercios_", colnames(combind2)[i])]] <- cut(combind2[[i]], 
-                                                               quantile(combind2[[i]], probs = c(0, 0.33, 0.67, 1), na.rm = TRUE), 
-                                                               labels = c("Low", "Medium", "High"), include.lowest = TRUE)
-}
 
-maptitles1 <- c("j) European threat status 2004 (Historical)", "k) European threat status 2022 (Current)", "m) SPEC 2004 (Historical)", "n) SPEC 2022 (Current)", "p) Combined index 1998-2002 (Historical)", "q) Combined index 2014-2022 (Current)")
+# Extract tercile thresholds for each variable
+tercile_thresholds1 <- lapply(1:6, function(i) {
+  quantile(combind2[[i]], probs = c(0, 0.33, 0.67, 1), na.rm = TRUE)
+})
 
-# Maps with new categories
+# Maps titles
+maptitles1 <- c("j) European threat status 2004 (Historical)", "k) European threat status 2022 (Current)", "m) SPEC 2004 (Historical)", "n) SPEC 2022 (Current)", "p) Area-based combined index 1998-2002 (Historical)", "q) Area-based combined index 2014-2022 (Current)")
+
+# Convert thresholds into legend labels
+tercile_labels1 <- lapply(tercile_thresholds1, function(q) {
+  c(
+    paste0("Low: [", round(q[1], 2), ", ", round(q[2], 2), "]"),
+    paste0("Medium: (", round(q[2], 2), ", ", round(q[3], 2), "]"),
+    paste0("High: (", round(q[3], 2), ", ", round(q[4], 2), "]")
+  )
+})
+
+# Create maps with legends inside the map area, without a rectangle around the legend
 mapas1 <- list()
 for (i in 1:6) {
   mapas1[[i]] <- ggplot() +
     geom_sf(data = combind2, aes_string(fill = paste0("tercios_", colnames(combind2)[i])), color = "transparent") +
-    geom_sf(data = comm, fill = "transparent", color = "black", size=5.5) +
-    scale_fill_manual(values = c("Low" = "thistle1", "Medium" = "plum2", "High" = "mediumorchid4"), na.value = "grey95") +
-    labs(x = "", y = "", fill = colnames(combind2)[i]) +
-    labs(title = maptitles1[i]) +
+    geom_sf(data = comm, fill = "transparent", color = "black") + 
+    scale_fill_manual(
+      values = c("Low" = "thistle1", "Medium" = "plum2", "High" = "mediumorchid4"), 
+      labels = tercile_labels1[[i]],
+      na.value = "grey95"
+    ) +
+    labs(x = "", y = "", fill = "", title = maptitles1[i]) +
+    annotation_scale(location = "bl", width_hint = .3) +
     theme_bw() +
     theme(
       title = element_text(size = 12, face = "bold"),
-      legend.title = element_text(size = 12, face = "bold"),
-      legend.position = "none",
-      axis.title = element_text(size = 15, face = "plain"),
-      legend.key.size = unit(0.5, "cm")
+      legend.title = element_blank(),
+      legend.position = c(0.8, 0.2), # Adjust position as needed
+      legend.background = element_blank(), # Remove the rectangle around the legend
+      legend.key.size = unit(0.4, "cm"),
+      legend.text = element_text(size = 8)
     ) +
     guides(colour = "none", size = "none", alpha = "none")
 }
@@ -654,7 +718,7 @@ for (i in 1:6) {
 mapa_completo1 <- cowplot::plot_grid(plotlist = mapas1, ncol = 2, align = "v", rel_heights = rep(1, length(mapas1)))
 mapa_completo1
 
-ggsave("Figures/indexes7_12_27Junesc_sensitivity.png", mapa_completo1, wi = 34, he = 45, un = "cm", dpi = 300)
+ggsave("Figures/indexes7_12_February25.png", mapa_completo1, wi = 34, he = 45, un = "cm", dpi = 300)
 
 maphotspots07 <- ggplot() +
   geom_sf(data = hotspfinal_HP, fill = "mediumorchid4") +
@@ -712,7 +776,7 @@ Hotspots_HP_CP <- ggplot() +
   guides(colour = "none", size = "none", alpha = "none") +
   labs(title = "Historical and current hotspots")
 
-ggsave("Figures/hotspotsHPCP_27Junesc_sensitivity.pdf", Hotspots_HP_CP, wi = 20, he = 25, un = "cm", dpi = 600)
+ggsave("Figures/hotspotsHPCP_27Junesc.pdf", Hotspots_HP_CP, wi = 20, he = 25, un = "cm", dpi = 600)
 
 hotspotsHP<-hotspfinal_HP
 hotspotsCP<-hotspfinal_CP
@@ -745,13 +809,13 @@ intersectPAhot <- st_intersection(hotspfinal_HP, union_PAs2004)
 # Creating the map
 PASPAs2004 <- ggplot() +
   geom_sf(data = comm, fill = "white", color = "black") +
-  geom_sf(data = hotspfinal_HP, aes(fill = "hotspots HP"), color = NA) +
+  geom_sf(data = hotspfinal_HP, aes(fill = "hotspots outside PA"), color = NA) +
   geom_sf(data = Protectedareas2004, aes(fill = "Parks"), color = NA) +
   geom_sf(data = SPAs2004, aes(fill = "SPAs"), color = NA) +
-  geom_sf(data = intersectPAhot, aes(fill = "intersection"), color = NA) +
-  geom_sf(data = overlapPA, aes(fill = "Parks + SPAs"), color = NA) +  # Muestra las áreas de superposición en rojo
-  scale_fill_manual(values = c("hotspots HP" = "orange", "Parks" = "lightgreen", "SPAs" = "aquamarine", "intersection" = "blue", "Parks + SPAs" = "springgreen4"),
-                    breaks = c("hotspots HP", "intersection", "Parks", "SPAs", "Parks + SPAs")) +
+  geom_sf(data = intersectPAhot, aes(fill = "hotspots within PA"), color = NA) +
+  geom_sf(data = overlapPA, aes(fill = "Parks + SPAs"), color = NA) +  
+  scale_fill_manual(values = c("hotspots outside PA" = "orange", "Parks" = "lightgreen", "SPAs" = "aquamarine", "hotspots within PA" = "blue", "Parks + SPAs" = "springgreen4"),
+                    breaks = c("hotspots outside PA", "hotspots within PA", "Parks", "SPAs", "Parks + SPAs")) +
   labs(x = "Longitude", y = "Latitude", fill = "") +
   labs(x = "Longitude", y = "Latitude", fill = "") +
   annotation_scale(location = "bl", width_hint = .3) +
@@ -761,7 +825,7 @@ PASPAs2004 <- ggplot() +
         legend.position = c(0.85, 0.25),
         axis.title = element_text(size = 12, face = "plain"), legend.key.size = unit(0.5, "cm")) +
   guides(colour = "none", size = "none", alpha = "none") +
-  labs(title = "Historical period: hotspots and Protected areas (PAs and SPAs)")
+  labs(title = "A) Historical period: hotspots and Protected areas (PAs and SPAs)")
 
 overlapPACP <- st_intersection(Protectedareas2022, SPAs2022)
 intersectPAhotCP <- st_intersection(hotspfinal_CP, union_PAs2022)
@@ -773,13 +837,13 @@ SPAs2022 <- st_union(SPAs2022)
 # Creating the map
 PASPAs2022 <- ggplot() +
   geom_sf(data = comm, fill = "white", color = "black") +
-  geom_sf(data = hotspfinal_CP, aes(fill = "hotspots CP"), color = NA) +
+  geom_sf(data = hotspfinal_CP, aes(fill = "hotspots outside PA"), color = NA) +
   geom_sf(data = Protectedareas2022, aes(fill = "Parks"), color = NA) +
   geom_sf(data = SPAs2022, aes(fill = "SPAs"), color = NA) +
-  geom_sf(data = intersectPAhotCP, aes(fill = "intersection"), color = NA) +
+  geom_sf(data = intersectPAhotCP, aes(fill = "hotspots within PA"), color = NA) +
   geom_sf(data = overlapPACP, aes(fill = "Parks + SPAs"), color = NA) +  # Muestra las áreas de superposición en rojo
-  scale_fill_manual(values = c("hotspots CP" = "orange", "Parks" = "lightgreen", "SPAs" = "aquamarine", "intersection" = "blue", "Parks + SPAs" = "springgreen4"),
-                    breaks = c("hotspots CP", "intersection", "Parks", "SPAs", "Parks + SPAs")) +
+  scale_fill_manual(values = c("hotspots outside PA" = "orange", "Parks" = "lightgreen", "SPAs" = "aquamarine", "hotspots within PA" = "blue", "Parks + SPAs" = "springgreen4"),
+                    breaks = c("hotspots outside PA", "hotspots within PA", "Parks", "SPAs", "Parks + SPAs")) +
   labs(x = "Longitude", y = "Latitude", fill = "") +
   labs(x = "Longitude", y = "Latitude", fill = "") +
   annotation_scale(location = "bl", width_hint = .3) +
@@ -789,8 +853,18 @@ PASPAs2022 <- ggplot() +
         legend.position = c(0.85, 0.25),
         axis.title = element_text(size = 12, face = "plain"), legend.key.size = unit(0.5, "cm")) +
   guides(colour = "none", size = "none", alpha = "none") +
-  labs(title = "Current period: hotspots and Protected areas (PAs and SPAs)")
+  labs(title = "B) Current period: hotspots and Protected areas (PAs and SPAs)")
 
-ggsave("Figures/PASPAs2004_2Oct2024_sensitivity.png", PASPAs2004, wi = 20, he = 25, un = "cm", dpi = 600)
-ggsave("Figures/PASPAs2022_2Oct2024_sensitivity.png", PASPAs2022, wi = 20, he = 25, un = "cm", dpi = 600)
+ggsave("Figures/PASPAs2004_9Decemb2024.png", PASPAs2004, wi = 20, he = 25, un = "cm", dpi = 600)
+ggsave("Figures/PASPAs2022_9Decemb2024.png", PASPAs2022, wi = 20, he = 25, un = "cm", dpi = 600)
+
+#Rasterizing 
+res <- 10  
+r <- rast(ext(combindex_HP_CP), resolution = res, crs = st_crs(combindex_HP_CP)$wkt)
+
+riquezaCP_raster <- rasterize(combindex_HP_CP, r, field = "rich_CP", fun = mean)  # Usa la media si hay superposición
+
+plot(riquezaCP_raster)
+
+writeRaster(riquezaCP_raster, "Figures/riquezaCP_raster.tif", format = "GTiff", overwrite = TRUE)
 

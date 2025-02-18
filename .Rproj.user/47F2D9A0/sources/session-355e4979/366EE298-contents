@@ -1,6 +1,5 @@
 #Script to calculate the areas differences between Protected areas and SPAs in 2022 and 2004. 
-#Also to calculate the changes in species richness and conservation status (LR, SPEC and EU) between both periods. This is for sensitivity
-#This script is run without using ebird data. 
+#Also to calculate the changes in species richness and conservation status (LR, SPEC and EU) between both periods.
 
 # load libraries
 library(sf)
@@ -19,9 +18,9 @@ library(gridExtra)
 # clean environment
 rm(list = ls())
 
-setwd("C:/Users/USUARIO/Documents/GitHub/SteppeBirdHotspotsandPAs")
+setwd("~/GitHub/SteppeBirdHotspotsandPAs")
 
-combindex_HP_CP <- st_read("Spatial_Data/combindexHP_CP_26June_sensitivity.shp")
+combindex_HP_CP <- st_read("Spatial_Data/combindexHP_CP_26June.shp")
 Protectedareas2004 <- st_read("Spatial_Data/espacios protegidos.shp")
 Protectedareas2022 <- st_read("Spatial_Data/Protected areas_enp_2022/Enp2022_p.shp")
 malla <- st_read("Spatial_Data/Malla_municipios/Malla_UTM.shp")
@@ -111,7 +110,7 @@ Indexes_HP_CP <- subset(Indexes_HP_CP0, !is.na(cmbindx_HP))
 ########### SPAs 2004 vs 2022 difference SPAs ###################
 
 SPAs2004 <- st_read("Spatial_Data/zepas_peninsula.shp")
-SPAs2022 <- st_read("Spatial_Data/lic_zepa2022_pbyc_tcm30-552029/Es_Lic_SCI_Zepa_SPA_Medalpatl_202212.shp")
+SPAs2022 <- st_read("Spatial_Data/Es_Lic_SCI_Zepa_SPA_Medalpatl_202212.shp")
 crs_existente <- st_crs(Protectedareas2022)
 
 #Obtaining the crs from crs_existente and assigning it to Protectedareas2004
@@ -281,7 +280,7 @@ Indexes_HP_CP_complete$SPAs_2022 <- NULL
 names(Indexes_HP_CP_complete)[34] <- "PASPAS_cell"
 names(Indexes_HP_CP_complete)[35] <- "PASPAS_area"
 
-write_sf(Indexes_HP_CP_complete, "Spatial_Data/HPCP_PASPA_27June_sensitivity.shp") #This shp has 4823 cells because those cells without richness data were removed.
+write_sf(Indexes_HP_CP_complete, "Spatial_Data/HPCP_PASPA_27June.shp") #This shp has 4823 cells because those cells without richness data were removed.
 
 ################################################################################
 #Stats per AC
@@ -295,8 +294,8 @@ comm <- st_transform(comm, st_crs(Indexes_HP_CP_complete))
 ############## Overlap with autonomous communities to calculate number of spp per AC in HP and CP
 
 #Loading the files with spp names and UTMs generated in Script 1 for HP and CP
-FilteredHP <- read.csv("Data/FilteredHP_sensitivity.csv", stringsAsFactors = F)
-FilteredCP <- read.csv("Data/FilteredCP_sensitivity.csv", stringsAsFactors = F)
+FilteredHP <- read.csv("Data/FilteredHP.csv", stringsAsFactors = F)
+FilteredCP <- read.csv("Data/FilteredCP.csv", stringsAsFactors = F)
 
 FilteredHP_shp <- left_join(malla[, c("UTMCODE")], FilteredHP,
                             by = "UTMCODE")
@@ -442,9 +441,9 @@ resultados_Comun2$n_cells<-NULL
 
 ACs_stats_30June <- merge(ACstatsHPCP, resultados_Comun2, by="ccaa.shortname.en")
 
-write_xlsx(ACs_stats_30June, 'Data/ACs_stats_1july_sensitivity.xlsx') 
-write_sf(hotspfinal_HP, "Spatial_Data/hotspfinal_HP_sensitivity.shp")
-write_sf(hotspfinal_CP, "Spatial_Data/hotspfinal_CP_sensitivity.shp")
+write_xlsx(ACs_stats_30June, 'Data/ACs_stats_1july.xlsx') 
+write_sf(hotspfinal_HP, "Spatial_Data/hotspfinal_HP.shp")
+write_sf(hotspfinal_CP, "Spatial_Data/hotspfinal_CP.shp")
 
 
 hotspfinal_HP
@@ -470,9 +469,11 @@ plot1 <- boxplot(Indexes_HP_CP_complete1$rich_HP, Indexes_HP_CP_complete1$rich_C
                  main = "Species richness", ylab = "Average richness",
                  col = c("white", "gray93"))
 
-# Calcular las medias escaladas
 mean07 <- mean(Indexes_HP_CP_complete1$rich_HP, na.rm = TRUE)
 mean23 <- mean(Indexes_HP_CP_complete1$rich_CP, na.rm = TRUE)
+
+#T test to check if differences are significant
+t_test_rich <- t.test(Indexes_HP_CP_complete1$rich_CP, Indexes_HP_CP_complete1$rich_HP, paired = TRUE)
 
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
@@ -502,6 +503,11 @@ plot3 <- boxplot(Indexes_HP_CP_complete1$RLS_2004_sc, Indexes_HP_CP_complete1$RL
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$RLS_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$RLS_2021_sc)
+
+#T test to check if differences are significant
+t_test_rarity <- t.test(Indexes_HP_CP_complete1$rarity_CP_sc, Indexes_HP_CP_complete1$rarity_HP_sc, paired = TRUE)
+
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot3, Indexes_HP_CP_complete1$RLS_2004_sc, Indexes_HP_CP_complete1$RLS_2021_sc)
@@ -515,6 +521,10 @@ plot4 <- boxplot(Indexes_HP_CP_complete1$EPS_2004_sc, Indexes_HP_CP_complete1$EP
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$EPS_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$EPS_2022_sc)
+
+#T test to check if differences are significant
+t_test_EPS <- t.test(Indexes_HP_CP_complete1$EPS_2022_sc, Indexes_HP_CP_complete1$EPS_2004_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot4, Indexes_HP_CP_complete1$EPS_2004_sc, Indexes_HP_CP_complete1$EPS_2022_sc)
@@ -528,19 +538,35 @@ plot5 <- boxplot(Indexes_HP_CP_complete1$SPEC_2004_sc, Indexes_HP_CP_complete1$S
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$SPEC_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$SPEC_2022_sc)
+
+#T test to check if differences are significant
+t_test_SPEC <- t.test(Indexes_HP_CP_complete1$SPEC_2022_sc, Indexes_HP_CP_complete1$SPEC_2004_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot5, Indexes_HP_CP_complete1$SPEC_2004_sc, Indexes_HP_CP_complete1$SPEC_2022_sc)
 points(1, mean07, col = "red", pch = 18)
 points(2, mean23, col = "red", pch = 18)
 
-# Combined index
+# Combined index: First scaling 0-1, the other indexes are already scaled
+
+basic_function <- function(x) {
+  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+Indexes_HP_CP_complete1$cmbindx_HP <- basic_function(Indexes_HP_CP_complete1$cmbindx_HP)
+Indexes_HP_CP_complete1$cmbindx_CP <- basic_function(Indexes_HP_CP_complete1$cmbindx_CP)
+
 plot6 <- boxplot(Indexes_HP_CP_complete1$cmbindx_HP, Indexes_HP_CP_complete1$cmbindx_CP, 
                  names = c("Historical", "Current"), 
-                 main = "Combined index", ylab = "Average score",
-                 col = c("white", "gray93"))
+                 main = "r) Mean CIa for HP and CP", ylab = "Average score (scaled 0-1)",
+                 col = c("white", "gray93"),
+                 cex.main = 0.8) # Cambiar el tamaño del título
 mean07 <- mean(Indexes_HP_CP_complete1$cmbindx_HP)
 mean23 <- mean(Indexes_HP_CP_complete1$cmbindx_CP)
+#T test to check if differences are significant
+t_test_CIa <- t.test(Indexes_HP_CP_complete1$cmbindx_CP, Indexes_HP_CP_complete1$cmbindx_HP, paired = TRUE)
+
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot6, Indexes_HP_CP_complete1$cmbindx_HP, Indexes_HP_CP_complete1$cmbindx_CP)
@@ -560,8 +586,34 @@ plot3
 plot6
 
 # Saving the image
-dev.copy(pdf, "Figures/combined_plots_indexes_1July_scaled_sensitivity.pdf")
+dev.copy(pdf, "Figures/combined_plots_indexes_1December_scaled.pdf")
 dev.off()
+
+# Now plotting the frequencies of CI values
+threshold_HP <- quantile(Indexes_HP_CP_complete1$cmbindx_HP, 0.95, na.rm = TRUE)
+threshold_CP <- quantile(Indexes_HP_CP_complete1$cmbindx_CP, 0.95, na.rm = TRUE)
+
+# Crear histograma para cmbindx_HP
+p1 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_HP)) +
+  geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = threshold_HP, color = "red", linetype = "dashed", linewidth = 1) +
+  ggtitle("") +
+  xlab("Area-based combined index (Historical period)") +
+  ylab("Frequency") +
+  theme_minimal()
+
+# Crear histograma para cmbindx_CP
+p2 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_CP)) +
+  geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = threshold_CP, color = "red", linetype = "dashed", linewidth = 1) +
+  ggtitle("") +
+  xlab("Area-based combined index (Current period)") +
+  ylab("Frequency") +
+  theme_minimal()
+
+# Mostrar los histogramas
+print(p1)
+print(p2)
 
 mean(Indexes_HP_CP_complete1$rich_HP_sc, na.rm = TRUE)
 mean(Indexes_HP_CP_complete1$rich_CP_sc, na.rm = TRUE)
@@ -619,7 +671,7 @@ for (i in 1:6) {
 mapa_completo <- cowplot::plot_grid(plotlist = mapas, ncol = 2, align = "v", rel_heights = rep(1, length(mapas)))
 mapa_completo
 
-ggsave("Figures/indexes1_6_27Junesc_sensitivity.png", mapa_completo, wi = 34, he = 45, un = "cm", dpi = 300)
+ggsave("Figures/indexes1_6_27Junesc.png", mapa_completo, wi = 34, he = 45, un = "cm", dpi = 300)
 
 # The other 6 variables
 for (i in 1:6) {
@@ -654,7 +706,7 @@ for (i in 1:6) {
 mapa_completo1 <- cowplot::plot_grid(plotlist = mapas1, ncol = 2, align = "v", rel_heights = rep(1, length(mapas1)))
 mapa_completo1
 
-ggsave("Figures/indexes7_12_27Junesc_sensitivity.png", mapa_completo1, wi = 34, he = 45, un = "cm", dpi = 300)
+ggsave("Figures/indexes7_12_27Junesc.png", mapa_completo1, wi = 34, he = 45, un = "cm", dpi = 300)
 
 maphotspots07 <- ggplot() +
   geom_sf(data = hotspfinal_HP, fill = "mediumorchid4") +
@@ -712,7 +764,7 @@ Hotspots_HP_CP <- ggplot() +
   guides(colour = "none", size = "none", alpha = "none") +
   labs(title = "Historical and current hotspots")
 
-ggsave("Figures/hotspotsHPCP_27Junesc_sensitivity.pdf", Hotspots_HP_CP, wi = 20, he = 25, un = "cm", dpi = 600)
+ggsave("Figures/hotspotsHPCP_27Junesc.pdf", Hotspots_HP_CP, wi = 20, he = 25, un = "cm", dpi = 600)
 
 hotspotsHP<-hotspfinal_HP
 hotspotsCP<-hotspfinal_CP
@@ -791,6 +843,6 @@ PASPAs2022 <- ggplot() +
   guides(colour = "none", size = "none", alpha = "none") +
   labs(title = "Current period: hotspots and Protected areas (PAs and SPAs)")
 
-ggsave("Figures/PASPAs2004_2Oct2024_sensitivity.png", PASPAs2004, wi = 20, he = 25, un = "cm", dpi = 600)
-ggsave("Figures/PASPAs2022_2Oct2024_sensitivity.png", PASPAs2022, wi = 20, he = 25, un = "cm", dpi = 600)
+ggsave("Figures/PASPAs2004_2Oct2024.png", PASPAs2004, wi = 20, he = 25, un = "cm", dpi = 600)
+ggsave("Figures/PASPAs2022_2Oct2024.png", PASPAs2022, wi = 20, he = 25, un = "cm", dpi = 600)
 

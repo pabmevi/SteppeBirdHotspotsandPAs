@@ -464,25 +464,22 @@ add_error_bars <- function(plot, data1, data2) {
   arrows(2, ci2[1], 2, ci2[2], length=0.05, angle=90, code=3, col="darkgrey")
 }
  
-# Crear los gráficos escalados
-
 plot1 <- boxplot(Indexes_HP_CP_complete1$rich_HP, Indexes_HP_CP_complete1$rich_CP, 
                  names = c("Historical", "Current"), 
                  main = "Species richness", ylab = "Average richness",
                  col = c("white", "gray93"))
 
-# Calcular las medias escaladas
 mean07 <- mean(Indexes_HP_CP_complete1$rich_HP, na.rm = TRUE)
 mean23 <- mean(Indexes_HP_CP_complete1$rich_CP, na.rm = TRUE)
 
-# Añadir las medias al gráfico
+#T test to check if differences are significant
+t_test_rich <- t.test(Indexes_HP_CP_complete1$rich_CP, Indexes_HP_CP_complete1$rich_HP, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 
-# Añadir barras de error (definiendo la función add_error_bars si es necesario)
 add_error_bars(plot1, Indexes_HP_CP_complete1$rich_HP, Indexes_HP_CP_complete1$rich_CP)
 
-# Añadir puntos de la media
 points(1, mean07, col = "red", pch = 18)
 points(2, mean23, col = "red", pch = 18)
 
@@ -506,6 +503,11 @@ plot3 <- boxplot(Indexes_HP_CP_complete1$RLS_2004_sc, Indexes_HP_CP_complete1$RL
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$RLS_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$RLS_2021_sc)
+
+#T test to check if differences are significant
+t_test_rarity <- t.test(Indexes_HP_CP_complete1$rarity_CP_sc, Indexes_HP_CP_complete1$rarity_HP_sc, paired = TRUE)
+
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot3, Indexes_HP_CP_complete1$RLS_2004_sc, Indexes_HP_CP_complete1$RLS_2021_sc)
@@ -519,6 +521,10 @@ plot4 <- boxplot(Indexes_HP_CP_complete1$EPS_2004_sc, Indexes_HP_CP_complete1$EP
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$EPS_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$EPS_2022_sc)
+
+#T test to check if differences are significant
+t_test_EPS <- t.test(Indexes_HP_CP_complete1$EPS_2022_sc, Indexes_HP_CP_complete1$EPS_2004_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot4, Indexes_HP_CP_complete1$EPS_2004_sc, Indexes_HP_CP_complete1$EPS_2022_sc)
@@ -532,19 +538,35 @@ plot5 <- boxplot(Indexes_HP_CP_complete1$SPEC_2004_sc, Indexes_HP_CP_complete1$S
                  col = c("white", "gray93"))
 mean07 <- mean(Indexes_HP_CP_complete1$SPEC_2004_sc)
 mean23 <- mean(Indexes_HP_CP_complete1$SPEC_2022_sc)
+
+#T test to check if differences are significant
+t_test_SPEC <- t.test(Indexes_HP_CP_complete1$SPEC_2022_sc, Indexes_HP_CP_complete1$SPEC_2004_sc, paired = TRUE)
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot5, Indexes_HP_CP_complete1$SPEC_2004_sc, Indexes_HP_CP_complete1$SPEC_2022_sc)
 points(1, mean07, col = "red", pch = 18)
 points(2, mean23, col = "red", pch = 18)
 
-# Combined index
+# Combined index: First scaling 0-1, the other indexes are already scaled
+
+basic_function <- function(x) {
+  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+}
+Indexes_HP_CP_complete1$cmbindx_HP <- basic_function(Indexes_HP_CP_complete1$cmbindx_HP)
+Indexes_HP_CP_complete1$cmbindx_CP <- basic_function(Indexes_HP_CP_complete1$cmbindx_CP)
+
 plot6 <- boxplot(Indexes_HP_CP_complete1$cmbindx_HP, Indexes_HP_CP_complete1$cmbindx_CP, 
                  names = c("Historical", "Current"), 
-                 main = "Combined index", ylab = "Average score",
-                 col = c("white", "gray93"))
+                 main = "r) Mean CIa for HP and CP", ylab = "Average score (scaled 0-1)",
+                 col = c("white", "gray93"),
+                 cex.main = 0.8) # Cambiar el tamaño del título
 mean07 <- mean(Indexes_HP_CP_complete1$cmbindx_HP)
 mean23 <- mean(Indexes_HP_CP_complete1$cmbindx_CP)
+#T test to check if differences are significant
+t_test_CIa <- t.test(Indexes_HP_CP_complete1$cmbindx_CP, Indexes_HP_CP_complete1$cmbindx_HP, paired = TRUE)
+
+
 text(1, mean07, labels = round(mean07, 2), pos = 3, col = "black")
 text(2, mean23, labels = round(mean23, 2), pos = 3, col = "black")
 add_error_bars(plot6, Indexes_HP_CP_complete1$cmbindx_HP, Indexes_HP_CP_complete1$cmbindx_CP)
@@ -564,7 +586,7 @@ plot3
 plot6
 
 # Saving the image
-dev.copy(pdf, "Figures/combined_plots_indexes_1July_scaled.pdf")
+dev.copy(pdf, "Figures/combined_plots_indexes_1December_scaled.pdf")
 dev.off()
 
 mean(Indexes_HP_CP_complete1$rich_HP_sc, na.rm = TRUE)

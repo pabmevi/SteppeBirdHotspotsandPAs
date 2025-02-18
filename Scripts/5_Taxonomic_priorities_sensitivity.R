@@ -1,4 +1,4 @@
-#Script to identify taxonomic priorities For protection
+#Script to identify taxonomic priorities For protection. This is to calculate correlations among indices
 library(sf)
 library(dplyr)
 library(cowplot)
@@ -8,7 +8,7 @@ library(data.table)
 library(writexl)
 
 rm(list = ls())
-setwd("~/GitHub/SteppeBirdHotspotsandPAs")
+setwd("C:/Users/USUARIO/Documents/GitHub/SteppeBirdHotspotsandPAs")
 
 ####CALCULATING DATA FOR SPECIES IN HISTORICAL PERIOD (HP)########################################
 ########################################################################################################
@@ -18,7 +18,7 @@ Threat_cats <-read.csv("Data/Threat_categories.csv", stringsAsFactors = F)
 
 FilteredHP <- read.csv("Data/FilteredHP.csv", stringsAsFactors = F)
 FilteredCP <- read.csv("Data/FilteredCP.csv", stringsAsFactors = F)
-malla <- st_read("Spatial_Data/Malla_UTM.shp")
+malla <- st_read("Spatial_Data/Malla_municipios/Malla_UTM.shp")
 
 # hotspots maps selecting the 5% of the highest scores
 hotspotsfinal_HP <- db3[order(db3$cmbn_HP, decreasing = TRUE),]
@@ -161,6 +161,7 @@ corrmatrix0 <- corrmatrix0[, c(6, 1, 3, 4, 5, 2)]
 corrmatrix0  <- as.data.frame(cor(corrmatrix0))
 write_xlsx(corrmatrix0, 'Data/CIs_indices_correlation.xlsx') 
 
+
 #min max linear rescaling
 basic_function <- function(x) {
   (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
@@ -204,39 +205,6 @@ TaxPrior$Priority_SCPTS <- cut(TaxPrior$combindex_SCPTS, breaks = c(-Inf, quanti
 TaxPrior$Priority_RLS <- cut(TaxPrior$combindex_RLS, breaks = c(-Inf, quantiles_RLS, Inf), labels = c("low", "medium", "high"), include.lowest = TRUE)
 TaxPrior$Priority_SCPTS1 <- cut(TaxPrior$combindex_SCPTS1, breaks = c(-Inf, quantiles_SCPTS1, Inf), labels = c("low", "medium", "high"), include.lowest = TRUE)
 TaxPrior$Priority_RLS1 <- cut(TaxPrior$combindex_RLS1, breaks = c(-Inf, quantiles_RLS1, Inf), labels = c("low", "medium", "high"), include.lowest = TRUE)
-
-# Now plotting the frequencies of CI values
-
-basic_function <- function(x) {
-  (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-}
-TaxPrior$combindex_SCPTS <- basic_function(TaxPrior$combindex_SCPTS)
-TaxPrior$combindex_RLS <- basic_function(TaxPrior$combindex_RLS)
-
-threshold_SCPTS <- quantile(TaxPrior$combindex_SCPTS, 0.667, na.rm = TRUE)
-threshold_RLS <- quantile(TaxPrior$combindex_RLS, 0.667, na.rm = TRUE)
-
-# Crear histograma para cmbindx_HP
-SCPTSfreq <- ggplot(TaxPrior, aes(x = combindex_SCPTS)) +
-  geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
-  geom_vline(xintercept = threshold_SCPTS, color = "red", linetype = "dashed", linewidth = 1) +
-  ggtitle("") +
-  xlab("Species-based combined index (SCPTS)") +
-  ylab("Frequency") +
-  theme_minimal()
-
-# Crear histograma para cmbindx_CP
-RLSfreq <- ggplot(TaxPrior, aes(x = combindex_RLS)) +
-  geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
-  geom_vline(xintercept = threshold_RLS, color = "red", linetype = "dashed", linewidth = 1) +
-  ggtitle("") +
-  xlab("Species-based combined index (RLS)") +
-  ylab("Frequency") +
-  theme_minimal()
-
-# Mostrar los histogramas
-print(SCPTSfreq)
-print(RLSfreq)
 
 # Saving as CSV
 write.csv(TaxPrior, "Data/taxpriorities4July.csv", row.names = FALSE)
