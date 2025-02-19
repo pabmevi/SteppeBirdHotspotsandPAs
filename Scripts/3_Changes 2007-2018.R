@@ -589,6 +589,32 @@ plot6
 dev.copy(pdf, "Figures/combined_plots_indexes_1December_scaled.pdf")
 dev.off()
 
+# Now plotting the frequencies of CI values
+threshold_HP <- quantile(Indexes_HP_CP_complete1$cmbindx_HP, 0.95, na.rm = TRUE)
+threshold_CP <- quantile(Indexes_HP_CP_complete1$cmbindx_CP, 0.95, na.rm = TRUE)
+
+# Crear histograma para cmbindx_HP
+p1 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_HP)) +
+  geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = threshold_HP, color = "red", linetype = "dashed", linewidth = 1) +
+  ggtitle("") +
+  xlab("Area-based combined index (Historical period)") +
+  ylab("Frequency") +
+  theme_minimal()
+
+# Crear histograma para cmbindx_CP
+p2 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_CP)) +
+  geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
+  geom_vline(xintercept = threshold_CP, color = "red", linetype = "dashed", linewidth = 1) +
+  ggtitle("") +
+  xlab("Area-based combined index (Current period)") +
+  ylab("Frequency") +
+  theme_minimal()
+
+# Mostrar los histogramas
+print(p1)
+print(p2)
+
 mean(Indexes_HP_CP_complete1$rich_HP_sc, na.rm = TRUE)
 mean(Indexes_HP_CP_complete1$rich_CP_sc, na.rm = TRUE)
 sd(Indexes_HP_CP_complete1$rich_HP_sc, na.rm = TRUE)
