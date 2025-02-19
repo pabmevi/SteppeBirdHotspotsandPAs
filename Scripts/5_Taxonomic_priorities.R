@@ -216,7 +216,7 @@ TaxPrior$combindex_RLS <- basic_function(TaxPrior$combindex_RLS)
 threshold_SCPTS <- quantile(TaxPrior$combindex_SCPTS, 0.667, na.rm = TRUE)
 threshold_RLS <- quantile(TaxPrior$combindex_RLS, 0.667, na.rm = TRUE)
 
-# Crear histograma para cmbindx_HP
+# Creating a histogram for combindex_SCPTS
 SCPTSfreq <- ggplot(TaxPrior, aes(x = combindex_SCPTS)) +
   geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
   geom_vline(xintercept = threshold_SCPTS, color = "red", linetype = "dashed", linewidth = 1) +
@@ -225,7 +225,7 @@ SCPTSfreq <- ggplot(TaxPrior, aes(x = combindex_SCPTS)) +
   ylab("Frequency") +
   theme_minimal()
 
-# Crear histograma para cmbindx_CP
+# Creating a histogram for combindex_RLS
 RLSfreq <- ggplot(TaxPrior, aes(x = combindex_RLS)) +
   geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
   geom_vline(xintercept = threshold_RLS, color = "red", linetype = "dashed", linewidth = 1) +
@@ -234,7 +234,6 @@ RLSfreq <- ggplot(TaxPrior, aes(x = combindex_RLS)) +
   ylab("Frequency") +
   theme_minimal()
 
-# Mostrar los histogramas
 print(SCPTSfreq)
 print(RLSfreq)
 

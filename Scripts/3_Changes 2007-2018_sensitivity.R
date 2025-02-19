@@ -470,7 +470,6 @@ plot1 <- boxplot(Indexes_HP_CP_complete1$rich_HP, Indexes_HP_CP_complete1$rich_C
                  main = "Species richness", ylab = "Average richness",
                  col = c("white", "gray93"))
 
-# Calcular las medias escaladas
 mean07 <- mean(Indexes_HP_CP_complete1$rich_HP, na.rm = TRUE)
 mean23 <- mean(Indexes_HP_CP_complete1$rich_CP, na.rm = TRUE)
 

@@ -71,15 +71,15 @@ cat_selected <- c("Parque Nacional", "Parque Natural", "Parque Regional")#, "Res
 Protectedareas2004 <- Protectedareas2004[Protectedareas2004$FIGURAPROT %in% cat_selected0, ]
 Protectedareas2022 <- Protectedareas2022[Protectedareas2022$ODESIGNATE %in% cat_selected, ]
 
-# Disolver todas las categorías de las áreas protegidas para que sean un solo objeto
+# Dissolving all protected areas categories so they are converted into a single object
 Protectedareas2004 <- st_union(Protectedareas2004)
 Protectedareas2022 <- st_union(Protectedareas2022)
 
-# Calcular el área de las áreas protegidas en cada celda para 2004
+# Calculating the area of Protected areas in each cell for 2004
 interseccion_2004 <- st_intersection(combindex_HP_CP, Protectedareas2004)
 interseccion_2004$areaPA_2004 <- st_area(interseccion_2004)
 
-# Calcular el área de las áreas protegidas en cada celda para 2022
+# Calculating the area of Protected areas in each cell for 2022
 interseccion_2022 <- st_intersection(combindex_HP_CP, Protectedareas2022)
 interseccion_2022$areaPA_2022 <- st_area(interseccion_2022)
 
@@ -88,7 +88,7 @@ combindex_HP_CPx <- combindex_HP_CP
 interseccion_2004$geometry <- NULL
 combindex_HP_CPx$geometry <- NULL
 
-# Unir los dos conjuntos de datos
+# Merging both datasets
 datos <- merge(combindex_HP_CPx, interseccion_2004[,c(1,24)], by = "UTMCODE", all.x = TRUE)
 datos <- merge(datos, interseccion_2022[,c(1,25)], by = "UTMCODE", all.x = TRUE)
 
@@ -185,7 +185,7 @@ Indexes_HP_CP_PA_SPAs1 <- left_join(malla[, c("UTMCODE")], Indexes_HP_CP_PA_SPAs
 
 Indexes_HP_CP_PA_SPAs1 <- subset(Indexes_HP_CP_PA_SPAs1, !is.na(cmbindx_HP))
 
-# I also want to analyse PAs and SPAs as a single object. So, I am merging both shapes from 2004 and 2022, and disolving. 
+# I also want to analyse PAs and SPAs as a single object. So, I am merging both shapes from 2004 and 2022, and dissolving. 
 # Previously I had calculated the areas of PAs and SPAs and just aggregated both values per cell to have the total areas of PAs and SPAs,
 # However, as PAs and SPAs overlap, I was having inflated values. Therefore, first I had to dissolve PAs and SPAs to calculate their
 # area as a whole for each cell
@@ -593,7 +593,7 @@ dev.off()
 threshold_HP <- quantile(Indexes_HP_CP_complete1$cmbindx_HP, 0.95, na.rm = TRUE)
 threshold_CP <- quantile(Indexes_HP_CP_complete1$cmbindx_CP, 0.95, na.rm = TRUE)
 
-# Crear histograma para cmbindx_HP
+# Creating a histogram for cmbindx_HP
 p1 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_HP)) +
   geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
   geom_vline(xintercept = threshold_HP, color = "red", linetype = "dashed", linewidth = 1) +
@@ -602,7 +602,7 @@ p1 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_HP)) +
   ylab("Frequency") +
   theme_minimal()
 
-# Crear histograma para cmbindx_CP
+# Creating a histogram for cmbindx_CP
 p2 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_CP)) +
   geom_histogram(bins = 30, fill = "gray", color = "black", alpha = 0.7) +
   geom_vline(xintercept = threshold_CP, color = "red", linetype = "dashed", linewidth = 1) +
@@ -611,7 +611,6 @@ p2 <- ggplot(Indexes_HP_CP_complete1, aes(x = cmbindx_CP)) +
   ylab("Frequency") +
   theme_minimal()
 
-# Mostrar los histogramas
 print(p1)
 print(p2)
 
