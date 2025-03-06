@@ -1,6 +1,8 @@
 These files belong to the manuscript "Spatial shifts in steppe bird hotspots over two decades: assessing conservation priorities and the role of protected areas".
 
-Some data inside the folder "Spatial data" have Spanish names. For these data, we are providing an explanation. 
+We provide spatial data on richness per cell for the historical and current periods (see the "combindexHP_CP_26June.shp" file). Occurrence data for each species can be made available upon request to the authors and SEO/BirdLife. 
+
+Some data inside the folder "Spatial data" have Spanish names. We are providing an explanation for these data. 
 
 Data included in the folder named: "Malla_municipios" refers to the 10 x 10 km grid cells across Spain. 
 Data included in the folder named: "Protected areas_enp_2022" refers to the shp file used for Parks in the current period.
